@@ -28,34 +28,18 @@ protected:
 };
 
 class InstructionRegister:public RegisterSingle {
+private:
+	vector<char> ControlUnitOperations{'1','2','3','4','B','C'};
+	vector<char>ALUOperations{ '5','6' };
 public:
 	void decode() {
-		switch (value[0]) {
-		case('1') :{
-			//load register with bit pattern found in memory address
-			}
-		case('2') :{
-			//load register with bit pattern XY (user input)
-			}
-		case('3'): {
-			//Store the bit pattern in Register R to memory cel XY
+		auto it = find(ControlUnitOperations.begin(), ControlUnitOperations.end(), value[0]);
+			if(it != ControlUnitOperations.end()){
+			
 		}
-		case('4'): {
-			//Move bit pattern from register r to register s
-		}
-		case('5'): {
-			//ADD bit patterns in register S and T as though they are represented in floating point notation  and leave result in R
-		}
-		case('6'): {
-			//
-		}
-		case('B'): {
-
-		}
-		case('C'): {
-
-		}
-		}
+	}
+	string GetInstruction() {
+		return value;
 	}
 };
 
@@ -91,15 +75,16 @@ public:
 	void ClearSlot(int address) {
 		memoryslots[address] = "00";
 	}
+	void ResizeMemory(int memorysize) {
+		memoryslots.resize(memorysize);
+	}
 	void Clear() {
 		for (int i = 0; i < memoryslots.size(); i++)
 		{
 			memoryslots[i] = "00";
 		}
 	}
-	Memory() {
-		Clear();
-	}
+	Memory() {}
 };
 
 
@@ -107,23 +92,40 @@ public:
 class CPU {
 private:
 	Register reggie;
-
-
+	ControlUnit cu;
+	ALU alu;
+	Memory mainmemory;
+	InstructionRegister instruReg;
 protected:
 	Register& getRegister() {
 		return reggie;
 	}
 public:
-	CPU() {
+	CPU(Memory& mainmemory) : cu(mainmemory), alu (mainmemory) {}
+	CPU() : cu(mainmemory) , alu(mainmemory) {};
+	ControlUnit GetControlUnit() {
+		return cu;
+	}
+	ALU GetALU() {
+		return alu;
+	}
+	Memory GetMemory() {
+		return mainmemory;
 	}
 };
 
 class ALU: public CPU {
-
+	Memory* mainmemory;
+	Register Register_16;
+	InstructionRegister instruReg;
 public:
-	ALU() {
-
+	void GetReggie(Register& RegisterClass) {
+		Register_16 = getRegister();
 	}
+		void GetMemory(Memory &memory) {
+		mainmemory = &memory;
+	}
+	ALU(Memory& memory) : mainmemory(&memory) {}
 };
 
 class ProgramCounter {
@@ -138,45 +140,47 @@ public:
 class ControlUnit: public CPU {
 private:
 	int ProgramCounter;
-	Memory mainmemory;
+	Memory* mainmemory;
 	Register Register_16;
 
 public:
-	int fetch();
+	ControlUnit(Memory& memory) : mainmemory(&memory) {}
 
-	void GetMemory(Memory memorytoget) {
-		mainmemory = memorytoget;
+	void GetMemory(Memory& memory) {
+		mainmemory = &memory;
 	}
-	void GetReggie(Register RegisterClass) {
+	void GetReggie(Register& RegisterClass) {
 		Register_16 = getRegister();
+	}
+
+	void Decision(string instruction) {
+		
 	}
 	void execute() {
 		
 	}
 	//load Register from memory
 	void Load(int address,int RegisterSinglenumber) {
-		Register_16.SetRegisterSingle(RegisterSinglenumber, mainmemory.GetMemoryValue(address));
+		Register_16.SetRegisterSingle(RegisterSinglenumber, mainmemory->GetMemoryValue(address));
 	}
 	void Load(string value, int RegisterSinglenumber) {
 		Register_16.SetRegisterSingle(RegisterSinglenumber, value);
 	}
 
 	void Store(int address, int RegisterSinglenumber) {
-		mainmemory.SetMemoryValue(address, Register_16.GetRegisterValue(RegisterSinglenumber));
+		mainmemory->SetMemoryValue(address, Register_16.GetRegisterValue(RegisterSinglenumber));
+	}
+	void Move(int RegisterSinglenumber1, int RegisterSinglenumber2) {
+		Register_16.SetRegisterSingle(RegisterSinglenumber2, Register_16.GetRegisterValue(RegisterSinglenumber1));
 	}
 
-	ControlUnit() {
-
-	}
 };
 
 
-/*class machine {
+class Machine {
 private:
 	Memory mainmemory;
 	CPU cpu;
-	ControlUnit cu;
-	ALU alu;
 public:
 	Memory Getmemory() {
 		return mainmemory;
@@ -184,17 +188,14 @@ public:
 	CPU GetCpu() {
 		return cpu;
 	}
-	ControlUnit GetCu() {
-		return cu;
-	}
-	ALU GetAlu() {
-		return alu;
-	}
+	Machine() : cpu(mainmemory){
+		mainmemory.ResizeMemory(256);
 
-	machine(string mainmemory,string cpu, string cu, string alu) {
-	
 	}
-};*/
+	void SetMainMemoryValue(int address, string value) {
+		mainmemory.SetMemoryValue(address, value);
+	}
+};
 
 
 
@@ -209,12 +210,9 @@ int main(){
 	} 
 	string word;
 
+	Machine machine;
+	InstructionRegister InstruReggie;
 
-	Memory mainmemory;
-	CPU cpu;
-	ControlUnit cu;
-	cu.GetMemory(mainmemory);
-	ALU alu;
 	vector<string> instructions;
 	while (file >> word) {
 		instructions.push_back(word.substr(0, 2));
@@ -222,8 +220,8 @@ int main(){
 	}
 	for (int i = 0; i < instructions.size(); i++)
 	{
-		mainmemory.SetMemoryValue(i,instructions[i]);
-		mainmemory.SetMemoryValue(i+1,instructions[i + 1]);
+		machine.SetMainMemoryValue(i,instructions[i]);
+		machine.SetMainMemoryValue(i+1,instructions[i + 1]);
 	}
 
 	cout <<  "instructions vector size" << instructions.size() << endl;
