@@ -45,19 +45,19 @@ public:
 
 class Register {
 private:
-	vector<RegisterSingle> reggie;
+	vector<RegisterSingle> RegisterVector;
 public:
 	Register() {
-		reggie.resize(16);
+		RegisterVector.resize(16);
 	}
 	void SetRegisterSingle(int index, string s) {
-		reggie[index].SetRegisterSingle(s);
+		RegisterVector[index].SetRegisterSingle(s);
 	}
 	RegisterSingle GetRegister(int index) {
-		return reggie[index];
+		return RegisterVector[index];
 	}
 	string GetRegisterValue(int index) {
-		return reggie[index].ReturnValue();
+		return RegisterVector[index].ReturnValue();
 	}
 };
 
@@ -84,83 +84,60 @@ public:
 			memoryslots[i] = "00";
 		}
 	}
-	Memory() {}
-};
-
-
-
-class CPU {
-private:
-	Register reggie;
-	ControlUnit cu;
-	ALU alu;
-	Memory mainmemory;
-	InstructionRegister instruReg;
-protected:
-	Register& getRegister() {
-		return reggie;
-	}
-public:
-	CPU(Memory& mainmemory) : cu(mainmemory), alu (mainmemory) {}
-	CPU() : cu(mainmemory) , alu(mainmemory) {};
-	ControlUnit GetControlUnit() {
-		return cu;
-	}
-	ALU GetALU() {
-		return alu;
-	}
-	Memory GetMemory() {
-		return mainmemory;
+	Memory() {
+		memoryslots.resize(256, "00");
 	}
 };
 
-class ALU: public CPU {
-	Memory* mainmemory;
-	Register Register_16;
-	InstructionRegister instruReg;
-public:
-	void GetReggie(Register& RegisterClass) {
-		Register_16 = getRegister();
-	}
-		void GetMemory(Memory &memory) {
-		mainmemory = &memory;
-	}
-	ALU(Memory& memory) : mainmemory(&memory) {}
-};
+
+
 
 class ProgramCounter {
 	int value;
 	int address;
 public:
-		
+
 };
 
 
+
+
+class ALU {
+	Memory* mainmemory;
+	Register Register_16;
+	InstructionRegister instruRegister;
+
+public:
+	ALU(Memory& memory, InstructionRegister& instruReg, Register& register_16) : mainmemory(&memory), instruRegister(instruReg), Register_16(register_16) {}
+	void GetMemory(Memory& memory) {
+		mainmemory = &memory;
+	}
+};
+
 //control unit where main instructions of the machine are carried out
-class ControlUnit: public CPU {
+class ControlUnit {
 private:
 	int ProgramCounter;
 	Memory* mainmemory;
 	Register Register_16;
+	InstructionRegister instruRegister;
+
 
 public:
-	ControlUnit(Memory& memory) : mainmemory(&memory) {}
+	ControlUnit(Memory& memory, InstructionRegister& InstruReg, Register& register_16) : mainmemory(&memory) , instruRegister(InstruReg), Register_16(register_16){}
 
 	void GetMemory(Memory& memory) {
 		mainmemory = &memory;
 	}
-	void GetReggie(Register& RegisterClass) {
-		Register_16 = getRegister();
-	}
 
 	void Decision(string instruction) {
-		
+
 	}
 	void execute() {
-		
+
 	}
 	//load Register from memory
-	void Load(int address,int RegisterSinglenumber) {
+	void Load(int address, int RegisterSinglenumber) {
 		Register_16.SetRegisterSingle(RegisterSinglenumber, mainmemory->GetMemoryValue(address));
 	}
 	void Load(string value, int RegisterSinglenumber) {
@@ -177,20 +154,46 @@ public:
 };
 
 
+class CPU {
+private:
+	Memory mainmemory;
+	InstructionRegister instruReg;
+	Register register_16;
+	ControlUnit cu;
+	ALU alu;
+public:
+	CPU(Memory& mainmemory) : cu(mainmemory,instruReg,register_16), alu (mainmemory,instruReg,register_16) {}
+	ControlUnit& GetControlUnit() {
+		return cu;
+	}
+
+	ALU& GetALU() {
+		return alu;
+	}
+
+	InstructionRegister& GetInstructionReg() {
+		return instruReg;
+	}
+
+	Memory& GetMemory() {
+		return mainmemory;
+	}
+};
+
+
+
 class Machine {
 private:
 	Memory mainmemory;
 	CPU cpu;
 public:
-	Memory Getmemory() {
+	Memory& Getmemory() {
 		return mainmemory;
 	}
-	CPU GetCpu() {
+	CPU& GetCpu() {
 		return cpu;
 	}
 	Machine() : cpu(mainmemory){
-		mainmemory.ResizeMemory(256);
-
 	}
 	void SetMainMemoryValue(int address, string value) {
 		mainmemory.SetMemoryValue(address, value);
@@ -211,7 +214,6 @@ int main(){
 	string word;
 
 	Machine machine;
-	InstructionRegister InstruReggie;
 
 	vector<string> instructions;
 	while (file >> word) {
