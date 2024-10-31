@@ -369,13 +369,14 @@ public:
 		Register_16.SetRegisterSingle(RegisterSinglenumber2, Register_16.GetRegisterValue(RegisterSinglenumber1));
 	}
 	void Rotate(int Registernumber, string rotations) {
-		string valueInRegister = Register_16.GetRegisterValue(Registernumber);
-		int iterations = stoi(rotations);
+		string valueInRegister = HextoBin(Register_16.GetRegisterValue(Registernumber));
+		int iterations = stoi(rotations,nullptr,16);
 		for (int i = 0; i < iterations; i++) {
+			string rest = valueInRegister.substr(0,valueInRegister.length() - 1);
 			char lastBit = valueInRegister[valueInRegister.length() - 1];
-			string rest = valueInRegister.substr(0,valueInRegister.length() - 2);
 			valueInRegister = lastBit + rest;
 		}
+		valueInRegister = BintoHex(valueInRegister);
 		Register_16.SetRegisterSingle(Registernumber, valueInRegister);
 	}
     void Jump(int address,int Registernumber){
