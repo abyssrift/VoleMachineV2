@@ -136,7 +136,7 @@ protected:
 class InstructionRegister:public RegisterSingle {
 private:
 	int Direction = 0;
-	vector<char> ControlUnitOperations{'1','2','3','4','B','C'};
+	vector<char> ControlUnitOperations{'1','2','3','4', 'A','B','C'};
 	vector<char>ALUOperations{ '5','6' };
 
 public:
@@ -368,6 +368,16 @@ public:
 	void Move(int RegisterSinglenumber1, int RegisterSinglenumber2) {
 		Register_16.SetRegisterSingle(RegisterSinglenumber2, Register_16.GetRegisterValue(RegisterSinglenumber1));
 	}
+	void Rotate(int Registernumber, string rotations) {
+		string valueInRegister = Register_16.GetRegisterValue(Registernumber);
+		int iterations = stoi(rotations);
+		for (int i = 0; i < iterations; i++) {
+			char lastBit = valueInRegister[valueInRegister.length() - 1];
+			string rest = valueInRegister.substr(0,valueInRegister.length() - 2);
+			valueInRegister = lastBit + rest;
+		}
+		Register_16.SetRegisterSingle(Registernumber, valueInRegister);
+	}
     void Jump(int address,int Registernumber){
         if(Register_16.GetRegisterValue(Registernumber) == Register_16.GetRegisterValue(0)){
             programcounter.SetCounter(address);
@@ -395,7 +405,9 @@ public:
             Move(RegisternumberR,RegisternumberS);
 		}
 		else if (instruction[0] == 'A') {
-
+			int Registernumber = HextoDec(instruction.substr(1,1));
+			string rotations = instruction.substr(2,4);
+			Rotate(Registernumber, rotations);
 		}
 		else if (instruction[0] == 'B') {
             int Registernumber = HextoDec(instruction.substr(1,1));
