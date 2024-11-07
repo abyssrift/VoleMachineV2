@@ -3,7 +3,6 @@
 ALU::ALU(Memory& memory, InstructionRegister& instruReg, Register& register_16, string& instruction2)
         : mainmemory(memory), instruRegister(instruReg), Register_16(register_16), instruction(instruction2) {
     // Constructor implementation
-    cout << "ALU successfully initiated" << endl;
 }
 
 string ALU::floating_point_sum(string num1, string num2) {

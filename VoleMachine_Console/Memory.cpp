@@ -3,7 +3,6 @@
 Memory::Memory() {
     // Memory constructor to initialize memory slots
     memoryslots.resize(256, "00");
-    cout << "Memory successfully initiated" << endl;
 }
 
 void Memory::SetMemoryValue(int address, string value) {

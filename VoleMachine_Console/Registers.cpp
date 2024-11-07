@@ -26,7 +26,6 @@ string RegisterSingle::ReturnValue() {
 // InstructionRegister class methods
 InstructionRegister::InstructionRegister() : RegisterSingle() {
     // Constructor implementation
-    cout << "InstruReg successfully initiated" << endl;
 }
 
 string InstructionRegister::GetInstruction() {
@@ -64,7 +63,6 @@ void InstructionRegister::decode() {
 Register::Register() {
     // Constructor for creating a list of registers
     RegisterVector.resize(16);
-    cout << "Register_16 successfully initiated" << endl;
 }
 
 void Register::SetRegisterSingle(int index, string s) {

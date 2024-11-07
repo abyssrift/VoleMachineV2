@@ -3,7 +3,6 @@
 ProgramCounter::ProgramCounter(Memory& mainMemory2, InstructionRegister& instructionRegister)
         : mainMemory(mainMemory2), instructionReg(instructionRegister), counter(0) {
     // Constructor implementation
-    cout << "ProgramCounter initialized" << endl;
 }
 
 void ProgramCounter::GetMemory() {
@@ -22,21 +21,17 @@ int ProgramCounter::GetCounter() {
 
 bool ProgramCounter::isEndOfProgram() {
     // Check if the end of the program has been reached
-    cout << "Checking if end of program with instruction: " << instruc << endl;
     return instruc == "C000";
 }
 
 void ProgramCounter::PassInstruction() {
     // Pass the next instruction to the InstructionRegister
-    cout << "Passing instruction to InstructionRegister: " << instruc << endl;
     instructionReg.SetRegisterSingle(instruc);
 }
 
 void ProgramCounter::runInstructions() {
     // Main loop to run instructions in sequence
     instruc = (mainMemory.GetMemoryValue(counter) + mainMemory.GetMemoryValue(counter + 1));
-    cout << "Fetched instruction: " << instruc << endl;
-
     if (isEndOfProgram()) {
         cout << "End of the program" << endl;
     }

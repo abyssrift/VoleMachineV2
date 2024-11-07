@@ -3,17 +3,11 @@
 ControlUnit::ControlUnit(Memory& memory, InstructionRegister& InstruReg, Register& register_16, string& instruction2, ProgramCounter& ProgramCounter)
         : mainmemory(memory), instruRegister(InstruReg), Register_16(register_16), instruction(instruction2), programcounter(ProgramCounter) {
     // Constructor implementation
-    cout << "CU successfully initiated" << endl;
 }
 
 void ControlUnit::GetMemory(Memory& memory) {
     // Load memory for the control unit to process
     mainmemory = memory;
-}
-
-void ControlUnit::CoutInstruction() {
-    // Output the current instruction
-    cout << instruction << endl;
 }
 
 void ControlUnit::Load(int address, int RegisterSinglenumber) {
@@ -28,6 +22,10 @@ void ControlUnit::Load(string value, int RegisterSinglenumber) {
 
 void ControlUnit::Store(int address, int RegisterSinglenumber) {
     // Store the value of a register to memory
+    if(instruction[2] == '0' && instruction[3] == '0'){
+        mainmemory.SetMemoryValue(0,Register_16.GetRegisterValue(RegisterSinglenumber));
+        return;
+    }
     mainmemory.SetMemoryValue(address, Register_16.GetRegisterValue(RegisterSinglenumber));
 }
 
@@ -58,18 +56,19 @@ void ControlUnit::equality_jump(int address, int Registernumber) {
 
 void ControlUnit::comparison_jump(int address, int Registernumber) {
     // Conditional jump based on comparison
-    int8_t register0 = static_cast<int8_t>(bitset<8>(Register_16.GetRegisterValue(Registernumber)).to_ulong());
-    int8_t register1 = static_cast<int8_t>(bitset<8>(Register_16.GetRegisterValue(0)).to_ulong());
-    if(HextoDec(BintoHex(bitset<8>(register1).to_string())) > HextoDec(BintoHex(bitset<8>(register0).to_string()))){
+    int8_t register0 = static_cast<int8_t>(bitset<8>(HextoBin(Register_16.GetRegisterValue(Registernumber))).to_ulong());
+    int8_t register1 = static_cast<int8_t>(bitset<8>(HextoBin(Register_16.GetRegisterValue(0))).to_ulong());
+    if(HextoDec(BintoHex(bitset<8>(register0).to_string())) > HextoDec(BintoHex(bitset<8>(register1).to_string()))){
         programcounter.SetCounter(address);
     }
 }
+
 
 void ControlUnit::Decode() {
     // Decode the instruction for control unit processing
     if (instruction[0] == '1') {
         int Registernumber = HextoDec(instruction.substr(1, 1));
-        int memoryaddress = HextoDec(instruction.substr(2, 4));
+        int memoryaddress = HextoDec(instruction.substr(2, 4)) + 2;
         Load(memoryaddress, Registernumber);
     }
     else if (instruction[0] == '2') {
@@ -79,7 +78,7 @@ void ControlUnit::Decode() {
     }
     else if (instruction[0] == '3') {
         int Registernumber = HextoDec(instruction.substr(1, 1));
-        int memoryaddress = HextoDec(instruction.substr(2, 4));
+        int memoryaddress = HextoDec(instruction.substr(2, 4)) + 2;
         Store(memoryaddress, Registernumber);
     }
     else if (instruction[0] == '4') {
@@ -94,12 +93,12 @@ void ControlUnit::Decode() {
     }
     else if (toupper(instruction[0]) == 'B') {
         int Registernumber = HextoDec(instruction.substr(1, 1));
-        int memoryaddress = HextoDec(instruction.substr(2, 4));
+        int memoryaddress = HextoDec(instruction.substr(2, 4)) + 2;
         equality_jump(memoryaddress, Registernumber);
     }
     else if (toupper(instruction[0]) == 'D') {
         int Registernumber = HextoDec(instruction.substr(1, 1));
-        int memoryaddress = HextoDec(instruction.substr(2, 4));
+        int memoryaddress = HextoDec(instruction.substr(2, 4)) + 2;
         comparison_jump(memoryaddress, Registernumber);
 
 

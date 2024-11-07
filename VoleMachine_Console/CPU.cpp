@@ -3,7 +3,6 @@
 CPU::CPU(Memory& mainmemory2)
         : mainmemory(mainmemory2), programCounter(mainmemory2, instruReg), cu(mainmemory2, instruReg, register_16, instruction, programCounter), alu(mainmemory2, instruReg, register_16, instruction) {
     // CPU constructor initializing all components
-    cout << "CPU successfully initiated" << endl;
 }
 
 ControlUnit& CPU::GetControlUnit() {
@@ -31,16 +30,12 @@ void CPU::DisplayMemory() {
     cout << "==================================MainMemory==================================" << endl;
     for (int i = 0; i < 251; i+=16) {
         // Only print if there is at least one non-zero value in the current set of cells
-//        if (mainmemory.GetMemoryValue(i) != "00" || mainmemory.GetMemoryValue(i + 1) != "00" ||
-//            mainmemory.GetMemoryValue(i + 2) != "00" || mainmemory.GetMemoryValue(i + 3) != "00" ||
-//            mainmemory.GetMemoryValue(i + 4) != "00") {
         for (int j = 0; j < 16; ++j) {
             cout << mainmemory.GetMemoryValue(i+j);
             if (j != 15) cout << " - ";
         }
             cout << endl;
     }
-//    }
     cout << "==============================================================================" << endl;
 }
 
@@ -49,22 +44,18 @@ void CPU::DisplayRegisters() {
     cout << "====Registers====" << endl;
     for (int i = 0; i < 16; i+=4) {
         // Only print if there is at least one non-zero value in the current set of cells
-//        if (register_16.GetRegisterValue(i) != "00" || register_16.GetRegisterValue(i + 1) != "00" ||
-//            register_16.GetRegisterValue(i + 2) != "00" || register_16.GetRegisterValue(i + 3) != "00") {
         for (int j = 0; j < 4; ++j) {
             cout << register_16.GetRegisterValue(i+j);
             if (j != 3) cout << " - ";
         }
         cout << endl;
     }
-//    }
     cout << "=================" << endl;
 }
 
 void CPU::CheckEnd() {
     // Check for the end of program execution
     if (instruReg.ReturnValue() == "C000" || instruReg.ReturnValue() == "c000" || programCounter.GetCounter() >= 255) {
-        cout << "program exited by user through instructions" << endl;
         DisplayMemory();
         DisplayRegisters();
         exit(0);
@@ -74,7 +65,6 @@ void CPU::CheckEnd() {
 void CPU::cycle() {
     programCounter.runInstructions();
 
-    cout << "Attempted to Fetch From memory" << endl;
     CheckEnd();
     instruReg.decode();
     instruction = instruReg.GetInstruction();
@@ -82,12 +72,16 @@ void CPU::cycle() {
 
     if (Direction == 1) {
         cu.Decode();
-        cu.CoutInstruction();
     }
     else if (Direction == 2) {
         alu.Decode();
     }
     instruReg.SetDirection(0);
+    if (mainmemory.GetMemoryValue(0) != "00"){
+        cout << "======Screen======" << endl;
+        cout << mainmemory.GetMemoryValue(0) << endl;
+        cout << "==================" << endl;
+    }
 }
 
 void CPU::Start() {
